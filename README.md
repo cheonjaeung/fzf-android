@@ -2,7 +2,7 @@
 
 Bash and Zsh key bindings for Android SDK CLI, inspired by [fzf-git](https://github.com/junegunn/fzf-git.sh).
 
-![emulator.gif](./emulator.gif)
+![demo.gif](./demo.gif)
 
 ## Installation
 
