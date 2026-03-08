@@ -2,7 +2,7 @@
 
 Bash and Zsh key bindings for Android SDK CLI, inspired by [fzf-git](https://github.com/junegunn/fzf-git.sh).
 
-![demo.gif](./demo.gif)
+![demo.gif](./vhs/demo.gif)
 
 ## Installation
 
@@ -45,13 +45,13 @@ You can open the selector user interface using the following key bindings.
 
 Example of getting API level in the specific device's ADB shell.
 
-![device-serials.gif](./device-serials.gif)
+![device-serials.gif](./vhs/device-serials.gif)
 
 ### Emulator
 
 Example of starting a virtual device.
 
-![emulator.gif](./emulator.gif)
+![emulator.gif](./vhs/emulator.gif)
 
 ## License
 
