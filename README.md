@@ -33,7 +33,25 @@ source ~/.zshrc
 
 You can open the selector user interface using the following key bindings.
 
-- <kbd>CTRL-A</kbd><kbd>CTRL-E</kbd>: Show the emulator list.
+- <kbd>CTRL-A</kbd><kbd>CTRL-S</kbd>: Show the device **s**erial list.
+- <kbd>CTRL-A</kbd><kbd>CTRL-E</kbd>: Show the **e**mulator list.
+
+> [!TIP]
+> You can use <kbd>CTRL-A</kbd><kbd>{key}</kbd> instead of <kbd>CTRL-A</kbd><kbd>CTRL-{key}</kbd>
+
+## Examples
+
+### Device Serials
+
+Example of getting API level in the specific device's ADB shell.
+
+![device-serials.gif](./device-serials.gif)
+
+### Emulator
+
+Example of starting a virtual device.
+
+![emulator.gif](./emulator.gif)
 
 ## License
 
