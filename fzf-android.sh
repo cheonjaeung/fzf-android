@@ -31,6 +31,17 @@ __fza_avds() {
   emulator -list-avds | fzf --prompt="AVDs> " --height=40% --reverse
 }
 
+# Core function to list connected adb device serials and pick one using fzf.
+__fza_adb_device_serials() {
+  # Check if the 'adb' command exists in the system PATH.
+  if ! command -v adb > /dev/null; then
+    echo "adb command not found" >&2
+    return 1
+  fi
+
+  adb devices | tail -n +2 | awk 'NF' | fzf --prompt="ADB Device Serials> " --height=40% --reverse | awk '{print $1}'
+}
+
 if __fzf_android_is_zsh; then
   # Zsh-specific implementation
 
@@ -42,8 +53,7 @@ if __fzf_android_is_zsh; then
     done
   }
 
-  # ZLE (Zsh Line Editor) widget.
-  # This function is triggered by the key binding.
+  # ZLE (Zsh Line Editor) widgets.
   fza-avds-widget() {
     # Get the selected AVD and format it.
     local result=$(__fza_avds | __fzf_android_join)
@@ -52,10 +62,24 @@ if __fzf_android_is_zsh; then
     # Append the selected value to the current command buffer.
     LBUFFER+=$result
   }
-  # Register the function as a ZLE widget.
+
+  fza-adb-device-serials-widget() {
+    # Get the selected device serial and format it.
+    local result=$(__fza_adb_device_serials | __fzf_android_join)
+    # Clear the fzf UI from the screen.
+    zle reset-prompt
+    # Append the selected value to the current command buffer.
+    LBUFFER+=$result
+  }
+  # End of ZLE widgets.
+
+  # Register the functions as a ZLE widget.
   zle -N fza-avds-widget
-  # Bind CTRL-A CTRL-E to the widget.
-  bindkey '^a^e' fza-avds-widget
+  zle -N fza-adb-device-serials-widget
+
+  # Bind keys to the widget.
+  bindkey '^a^e' fza-avds-widget # CTRL-A CTRL-E
+  bindkey '^a^s' fza-adb-device-serials-widget # CTRL-A CTRL-S
 
 else
   # Bash-specific implementation
@@ -68,17 +92,25 @@ else
     done
   }
 
-  # Helper function for Bash key binding.
+  # Helper functions for Bash key binding.
   __fza_avds_bash() {
     __fza_avds | __fzf_android_join
   }
+
+  __fza_adb_device_serials_bash() {
+    __fza_adb_device_serials | __fzf_android_join
+  }
+  # End of helper functions.
 
   # Bash key bindings are more complex.
   # This sequence saves the current line, executes the helper function to get the selection,
   # and restores the line with the selection inserted.
   bind -m emacs-standard '"\er": redraw-current-line'
   bind -m emacs-standard '"\C-a\C-e": " \C-e\C-u\C-y\ey\C-u`__fza_avds_bash`\e\C-e\er\C-m\C-y\ey\C-u\C-y\ey\C-u"'
+  bind -m emacs-standard '"\C-a\C-s": " \C-e\C-u\C-y\ey\C-u`__fza_adb_device_serials_bash`\e\C-e\er\C-m\C-y\ey\C-u\C-y\ey\C-u"'
   # Bindings for VI mode if enabled.
   bind -m vi-command '"\C-a\C-e": "\C-z\C-a\C-e"'
   bind -m vi-insert '"\C-a\C-e": "\C-z\C-a\C-e"'
+  bind -m vi-command '"\C-a\C-s": "\C-z\C-a\C-s"'
+  bind -m vi-insert '"\C-a\C-s": "\C-z\C-a\C-s"'
 fi
