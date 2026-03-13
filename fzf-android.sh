@@ -42,6 +42,19 @@ __fza_adb_device_serials() {
   adb devices | tail -n +2 | awk 'NF' | fzf --prompt="ADB Device Serials> " --height=40% --reverse | awk '{print $1}'
 }
 
+# Core function to list installed packages and pick one using fzf.
+__fza_pm_packages() {
+  # Check if the 'adb' command exists in the system PATH.
+  if ! command -v adb > /dev/null; then
+    echo "adb command not found" >&2
+    return 1
+  fi
+
+  # 'adb shell pm list packages' outputs lines like 'package:com.example.app\r'.
+  # We use sed to remove the 'package:' prefix and the trailing carriage return (\r).
+  adb shell pm list packages | sed $'s/^package://;s/\r$//' | fzf --prompt="Packages> " --height=40% --reverse
+}
+
 if __fzf_android_is_zsh; then
   # Zsh-specific implementation
 
@@ -71,15 +84,26 @@ if __fzf_android_is_zsh; then
     # Append the selected value to the current command buffer.
     LBUFFER+=$result
   }
+
+  fza-pm-packages-widget() {
+    # Get the selected package name and format it.
+    local result=$(__fza_pm_packages | __fzf_android_join)
+    # Clear the fzf UI from the screen.
+    zle reset-prompt
+    # Append the selected value to the current command buffer.
+    LBUFFER+=$result
+  }
   # End of ZLE widgets.
 
   # Register the functions as a ZLE widget.
   zle -N fza-avds-widget
   zle -N fza-adb-device-serials-widget
+  zle -N fza-pm-packages-widget
 
   # Bind keys to the widget.
   bindkey '^a^e' fza-avds-widget # CTRL-A CTRL-E
   bindkey '^a^s' fza-adb-device-serials-widget # CTRL-A CTRL-S
+  bindkey '^a^p' fza-pm-packages-widget # CTRL-A CTRL-P
 
 else
   # Bash-specific implementation
@@ -100,6 +124,10 @@ else
   __fza_adb_device_serials_bash() {
     __fza_adb_device_serials | __fzf_android_join
   }
+
+  __fza_pm_packages_bash() {
+    __fza_pm_packages | __fzf_android_join
+  }
   # End of helper functions.
 
   # Bash key bindings are more complex.
@@ -108,9 +136,12 @@ else
   bind -m emacs-standard '"\er": redraw-current-line'
   bind -m emacs-standard '"\C-a\C-e": " \C-e\C-u\C-y\ey\C-u`__fza_avds_bash`\e\C-e\er\C-m\C-y\ey\C-u\C-y\ey\C-u"'
   bind -m emacs-standard '"\C-a\C-s": " \C-e\C-u\C-y\ey\C-u`__fza_adb_device_serials_bash`\e\C-e\er\C-m\C-y\ey\C-u\C-y\ey\C-u"'
+  bind -m emacs-standard '"\C-a\C-p": " \C-e\C-u\C-y\ey\C-u`__fza_pm_packages_bash`\e\C-e\er\C-m\C-y\ey\C-u\C-y\ey\C-u"'
   # Bindings for VI mode if enabled.
   bind -m vi-command '"\C-a\C-e": "\C-z\C-a\C-e"'
   bind -m vi-insert '"\C-a\C-e": "\C-z\C-a\C-e"'
   bind -m vi-command '"\C-a\C-s": "\C-z\C-a\C-s"'
   bind -m vi-insert '"\C-a\C-s": "\C-z\C-a\C-s"'
+  bind -m vi-command '"\C-a\C-p": "\C-z\C-a\C-p"'
+  bind -m vi-insert '"\C-a\C-p": "\C-z\C-a\C-p"'
 fi
