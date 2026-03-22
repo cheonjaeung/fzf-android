@@ -9,6 +9,26 @@ Bash and Zsh key bindings for Android SDK CLI, inspired by [fzf-git](https://git
 This tool heavily depends on [fzf](https://github.com/junegunn/fzf) and Android SDK command line tools.
 Check if the tools are installed in your environment.
 
+### HomeBrew
+
+1. Add Cheon Jaeung's Tap.
+
+```sh
+brew tap cheonjaeung/tap
+```
+
+2. Install fzf-android using brew.
+
+```sh
+brew install fzf-android
+```
+
+3. `source` the shell script to your `.bashrc` or `.zshrc`.
+
+```sh
+echo "source $(brew --prefix)/share/fzf-android/fzf-android.sh" >> ~/.zshrc
+```
+
 ### Manual
 
 1. Download or clone the project.
