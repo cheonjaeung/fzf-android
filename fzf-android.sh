@@ -39,7 +39,7 @@ __fza_adb_device_serials() {
     return 1
   fi
 
-  adb devices | tail -n +2 | awk 'NF' | fzf --prompt="ADB Device Serials> " --height=40% --reverse | awk '{print $1}'
+  adb devices | tail -n +2 | awk 'NF {print $1}' | fzf --prompt="ADB Device Serials> " --height=40% --reverse
 }
 
 # Core function to list installed packages and pick one using fzf.
@@ -72,8 +72,10 @@ if __fzf_android_is_zsh; then
     local result=$(__fza_avds | __fzf_android_join)
     # Clear the fzf UI from the screen.
     zle reset-prompt
-    # Append the selected value to the current command buffer.
-    LBUFFER+=$result
+    if [[ -n "$result" ]]; then
+      # Append the selected value to the current command buffer.
+      LBUFFER+=$result
+    fi
   }
 
   fza-adb-device-serials-widget() {
@@ -81,8 +83,10 @@ if __fzf_android_is_zsh; then
     local result=$(__fza_adb_device_serials | __fzf_android_join)
     # Clear the fzf UI from the screen.
     zle reset-prompt
-    # Append the selected value to the current command buffer.
-    LBUFFER+=$result
+    if [[ -n "$result" ]]; then
+      # Append the selected value to the current command buffer.
+      LBUFFER+=$result
+    fi
   }
 
   fza-pm-packages-widget() {
@@ -90,8 +94,10 @@ if __fzf_android_is_zsh; then
     local result=$(__fza_pm_packages | __fzf_android_join)
     # Clear the fzf UI from the screen.
     zle reset-prompt
-    # Append the selected value to the current command buffer.
-    LBUFFER+=$result
+    if [[ -n "$result" ]]; then
+      # Append the selected value to the current command buffer.
+      LBUFFER+=$result
+    fi
   }
   # End of ZLE widgets.
 
@@ -118,15 +124,27 @@ else
 
   # Helper functions for Bash key binding.
   __fza_avds_bash() {
-    __fza_avds | __fzf_android_join
+    local selected=$(__fza_avds | __fzf_android_join)
+    if [[ -n "$selected" ]]; then
+      READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+      READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
+    fi
   }
 
   __fza_adb_device_serials_bash() {
-    __fza_adb_device_serials | __fzf_android_join
+    local selected=$(__fza_adb_device_serials | __fzf_android_join)
+    if [[ -n "$selected" ]]; then
+      READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+      READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
+    fi
   }
 
   __fza_pm_packages_bash() {
-    __fza_pm_packages | __fzf_android_join
+    local selected=$(__fza_pm_packages | __fzf_android_join)
+    if [[ -n "$selected" ]]; then
+      READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+      READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
+    fi
   }
   # End of helper functions.
 
