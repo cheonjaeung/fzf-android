@@ -56,6 +56,7 @@ You can open the selector user interface using the following key bindings.
 - <kbd>CTRL-A</kbd><kbd>CTRL-S</kbd>: Show the device **s**erial list.
 - <kbd>CTRL-A</kbd><kbd>CTRL-E</kbd>: Show the **e**mulator list.
 - <kbd>CTRL-A</kbd><kbd>CTRL-P</kbd>: Show the installed **p**ackage list.
+- <kbd>CTRL-A</kbd><kbd>CTRL-F</kbd>: Show the device **f**ile list.
 
 > [!TIP]
 > You can use <kbd>CTRL-A</kbd><kbd>{key}</kbd> instead of <kbd>CTRL-A</kbd><kbd>CTRL-{key}</kbd>
