@@ -148,18 +148,8 @@ else
   }
   # End of helper functions.
 
-  # Bash key bindings are more complex.
-  # This sequence saves the current line, executes the helper function to get the selection,
-  # and restores the line with the selection inserted.
-  bind -m emacs-standard '"\er": redraw-current-line'
-  bind -m emacs-standard '"\C-a\C-e": " \C-e\C-u\C-y\ey\C-u`__fza_avds_bash`\e\C-e\er\C-m\C-y\ey\C-u\C-y\ey\C-u"'
-  bind -m emacs-standard '"\C-a\C-s": " \C-e\C-u\C-y\ey\C-u`__fza_adb_device_serials_bash`\e\C-e\er\C-m\C-y\ey\C-u\C-y\ey\C-u"'
-  bind -m emacs-standard '"\C-a\C-p": " \C-e\C-u\C-y\ey\C-u`__fza_pm_packages_bash`\e\C-e\er\C-m\C-y\ey\C-u\C-y\ey\C-u"'
-  # Bindings for VI mode if enabled.
-  bind -m vi-command '"\C-a\C-e": "\C-z\C-a\C-e"'
-  bind -m vi-insert '"\C-a\C-e": "\C-z\C-a\C-e"'
-  bind -m vi-command '"\C-a\C-s": "\C-z\C-a\C-s"'
-  bind -m vi-insert '"\C-a\C-s": "\C-z\C-a\C-s"'
-  bind -m vi-command '"\C-a\C-p": "\C-z\C-a\C-p"'
-  bind -m vi-insert '"\C-a\C-p": "\C-z\C-a\C-p"'
+  # Bind keys to the bash functions.
+  bind -x '"\C-a\C-e": __fza_avds_bash'
+  bind -x '"\C-a\C-s": __fza_adb_device_serials_bash'
+  bind -x '"\C-a\C-p": __fza_pm_packages_bash'
 fi
