@@ -55,6 +55,17 @@ __fza_pm_packages() {
   adb shell pm list packages | sed $'s/^package://;s/\r$//' | fzf --prompt="Packages> " --height=40% --reverse
 }
 
+# Core function to list files in /sdcard and pick one using fzf.
+__fza_adb_files() {
+  # Check if the 'adb' command exists in the system PATH.
+  if ! command -v adb > /dev/null; then
+    echo "adb command not found" >&2
+    return 1
+  fi
+
+  adb shell "find /sdcard/ -type f -not -path '*/.*' 2>/dev/null" | sed $'s/\r$//' | fzf --prompt="ADB Files> " --height=40% --reverse
+}
+
 if __fzf_android_is_zsh; then
   # Zsh-specific implementation
 
@@ -99,17 +110,30 @@ if __fzf_android_is_zsh; then
       LBUFFER+=$result
     fi
   }
+
+  fza-adb-files-widget() {
+    # Get the selected file path and format it.
+    local result=$(__fza_adb_files | __fzf_android_join)
+    # Clear the fzf UI from the screen.
+    zle reset-prompt
+    if [[ -n "$result" ]]; then
+      # Append the selected value to the current command buffer.
+      LBUFFER+=$result
+    fi
+  }
   # End of ZLE widgets.
 
   # Register the functions as a ZLE widget.
   zle -N fza-avds-widget
   zle -N fza-adb-device-serials-widget
   zle -N fza-pm-packages-widget
+  zle -N fza-adb-files-widget
 
   # Bind keys to the widget.
   bindkey '^a^e' fza-avds-widget # CTRL-A CTRL-E
   bindkey '^a^s' fza-adb-device-serials-widget # CTRL-A CTRL-S
   bindkey '^a^p' fza-pm-packages-widget # CTRL-A CTRL-P
+  bindkey '^a^f' fza-adb-files-widget # CTRL-A CTRL-F
 
 else
   # Bash-specific implementation
@@ -146,10 +170,19 @@ else
       READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
     fi
   }
+
+  __fza_adb_files_bash() {
+    local selected=$(__fza_adb_files | __fzf_android_join)
+    if [[ -n "$selected" ]]; then
+      READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+      READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
+    fi
+  }
   # End of helper functions.
 
   # Bind keys to the bash functions.
   bind -x '"\C-a\C-e": __fza_avds_bash'
   bind -x '"\C-a\C-s": __fza_adb_device_serials_bash'
   bind -x '"\C-a\C-p": __fza_pm_packages_bash'
+  bind -x '"\C-a\C-f": __fza_adb_files_bash'
 fi
