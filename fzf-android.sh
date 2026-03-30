@@ -41,7 +41,7 @@ __fza_avds() {
     return 1
   fi
 
-  emulator -list-avds | fzf --prompt="AVDs> " --height=40% --reverse
+  emulator -list-avds | fzf --prompt="💻 Emulators> " --height=40% --reverse
 }
 
 # Core function to list connected adb device serials and pick one using fzf.
@@ -52,7 +52,7 @@ __fza_adb_device_serials() {
     return 1
   fi
 
-  adb devices | tail -n +2 | awk 'NF {print $1}' | fzf --prompt="ADB Device Serials> " --height=40% --reverse
+  adb devices | tail -n +2 | awk 'NF {print $1}' | fzf --prompt="📱 Device Serials> " --height=40% --reverse
 }
 
 # Core function to list installed packages and pick one using fzf.
@@ -65,7 +65,7 @@ __fza_pm_packages() {
 
   # 'adb shell pm list packages' outputs lines like 'package:com.example.app\r'.
   # We use sed to remove the 'package:' prefix and the trailing carriage return (\r).
-  adb shell pm list packages | sed $'s/^package://;s/\r$//' | fzf --prompt="Packages> " --height=40% --reverse
+  adb shell pm list packages | sed $'s/^package://;s/\r$//' | fzf --prompt="📦 Packages> " --height=40% --reverse
 }
 
 # Core function to list files in /sdcard and pick one using fzf.
@@ -76,7 +76,7 @@ __fza_adb_files() {
     return 1
   fi
 
-  adb shell "find /sdcard/ -type f -not -path '*/.*' 2>/dev/null" | sed $'s/\r$//' | fzf --prompt="ADB Files> " --height=40% --reverse
+  adb shell "find /sdcard/ -type f -not -path '*/.*' 2>/dev/null" | sed $'s/\r$//' | fzf --prompt="📁 Files> " --height=40% --reverse
 }
 
 if __fzf_android_is_zsh; then
