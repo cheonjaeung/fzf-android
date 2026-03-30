@@ -20,6 +20,19 @@ __fzf_android_is_zsh() {
   [[ -n "${ZSH_VERSION:-}" ]]
 }
 
+# Core function to display key bindings.
+__fza_help() {
+  echo
+  cat <<'EOF'
+fzf-android key bindings:
+  CTRL-A ?     : Print this help
+  CTRL-A CTRL-E: List emulators (AVDs)
+  CTRL-A CTRL-S: List device serials
+  CTRL-A CTRL-P: List installed packages
+  CTRL-A CTRL-F: List files
+EOF
+}
+
 # Core function to list android virtual devices and pick one using fzf.
 __fza_avds() {
   # Check if the 'emulator' command exists in the system PATH.
@@ -78,6 +91,11 @@ if __fzf_android_is_zsh; then
   }
 
   # ZLE (Zsh Line Editor) widgets.
+  fza-help-widget() {
+    __fza_help
+    zle reset-prompt
+  }
+
   fza-avds-widget() {
     # Get the selected AVD and format it.
     local result=$(__fza_avds | __fzf_android_join)
@@ -124,12 +142,14 @@ if __fzf_android_is_zsh; then
   # End of ZLE widgets.
 
   # Register the functions as a ZLE widget.
+  zle -N fza-help-widget
   zle -N fza-avds-widget
   zle -N fza-adb-device-serials-widget
   zle -N fza-pm-packages-widget
   zle -N fza-adb-files-widget
 
   # Bind keys to the widget.
+  bindkey '^a?' fza-help-widget # CTRL-A ?
   bindkey '^a^e' fza-avds-widget # CTRL-A CTRL-E
   bindkey '^a^s' fza-adb-device-serials-widget # CTRL-A CTRL-S
   bindkey '^a^p' fza-pm-packages-widget # CTRL-A CTRL-P
@@ -147,6 +167,10 @@ else
   }
 
   # Helper functions for Bash key binding.
+  __fza_help_bash() {
+    __fza_help
+  }
+
   __fza_avds_bash() {
     local selected=$(__fza_avds | __fzf_android_join)
     if [[ -n "$selected" ]]; then
@@ -181,6 +205,7 @@ else
   # End of helper functions.
 
   # Bind keys to the bash functions.
+  bind -x '"\C-a?": __fza_help_bash'
   bind -x '"\C-a\C-e": __fza_avds_bash'
   bind -x '"\C-a\C-s": __fza_adb_device_serials_bash'
   bind -x '"\C-a\C-p": __fza_pm_packages_bash'
