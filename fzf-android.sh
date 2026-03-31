@@ -26,8 +26,8 @@ __fza_help() {
   cat <<'EOF'
 fzf-android key bindings:
   CTRL-A ?     : Print this help
-  CTRL-A CTRL-E: List emulators (AVDs)
-  CTRL-A CTRL-S: List device serials
+  CTRL-A CTRL-V: List android virtual devices
+  CTRL-A CTRL-E: List devices
   CTRL-A CTRL-P: List installed packages
   CTRL-A CTRL-F: List files
 EOF
@@ -41,7 +41,7 @@ __fza_avds() {
     return 1
   fi
 
-  emulator -list-avds | fzf --prompt="💻 Emulators> " --height=40% --reverse
+  emulator -list-avds | fzf --prompt="💻 AVDs> " --height=40% --reverse
 }
 
 # Core function to list connected adb device serials and pick one using fzf.
@@ -52,7 +52,7 @@ __fza_adb_device_serials() {
     return 1
   fi
 
-  adb devices | tail -n +2 | awk 'NF {print $1}' | fzf --prompt="📱 Device Serials> " --height=40% --reverse
+  adb devices | tail -n +2 | awk 'NF {print $1}' | fzf --prompt="📱 Devices> " --height=40% --reverse
 }
 
 # Core function to list installed packages and pick one using fzf.
@@ -150,8 +150,8 @@ if __fzf_android_is_zsh; then
 
   # Bind keys to the widget.
   bindkey '^a?' fza-help-widget # CTRL-A ?
-  bindkey '^a^e' fza-avds-widget # CTRL-A CTRL-E
-  bindkey '^a^s' fza-adb-device-serials-widget # CTRL-A CTRL-S
+  bindkey '^a^v' fza-avds-widget # CTRL-A CTRL-V
+  bindkey '^a^e' fza-adb-device-serials-widget # CTRL-A CTRL-E
   bindkey '^a^p' fza-pm-packages-widget # CTRL-A CTRL-P
   bindkey '^a^f' fza-adb-files-widget # CTRL-A CTRL-F
 
@@ -206,8 +206,8 @@ else
 
   # Bind keys to the bash functions.
   bind -x '"\C-a?": __fza_help_bash'
-  bind -x '"\C-a\C-e": __fza_avds_bash'
-  bind -x '"\C-a\C-s": __fza_adb_device_serials_bash'
+  bind -x '"\C-a\C-v": __fza_avds_bash'
+  bind -x '"\C-a\C-e": __fza_adb_device_serials_bash'
   bind -x '"\C-a\C-p": __fza_pm_packages_bash'
   bind -x '"\C-a\C-f": __fza_adb_files_bash'
 fi
