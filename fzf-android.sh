@@ -76,7 +76,7 @@ __fza_adb_files() {
     return 1
   fi
 
-  adb shell "find /sdcard/ -type f -not -path '*/.*' 2>/dev/null" | sed $'s/\r$//' | fzf --prompt="📁 Files> " --height=40% --reverse
+  adb shell "find /sdcard/ -type f -not -path '*/.*' 2>/dev/null" | sed $'s/\r$//' | fzf --prompt="📁 Files> " --height=40% --reverse --preview='adb shell cat "{}"' --preview-window=right:50%
 }
 
 if __fzf_android_is_zsh; then
