@@ -20,6 +20,16 @@ __fzf_android_is_zsh() {
   [[ -n "${ZSH_VERSION:-}" ]]
 }
 
+# Check if a required command exists in the system PATH.
+# Prints an error to stderr and returns 1 if not found.
+__fza_check_command() {
+  local cmd="$1"
+  if ! command -v "$cmd" > /dev/null; then
+    echo "fzf-android: $cmd command not found" >&2
+    return 1
+  fi
+}
+
 # Core function to display key bindings.
 __fza_help() {
   echo
@@ -35,33 +45,24 @@ EOF
 
 # Core function to list android virtual devices and pick one using fzf.
 __fza_avds() {
-  # Check if the 'emulator' command exists in the system PATH.
-  if ! command -v emulator > /dev/null; then
-    echo "emulator command not found" >&2
-    return 1
-  fi
+  __fza_check_command emulator || return 1
+  __fza_check_command fzf || return 1
 
   emulator -list-avds | fzf --prompt="💻 AVDs> " --height=40% --reverse
 }
 
 # Core function to list connected adb device serials and pick one using fzf.
 __fza_adb_device_serials() {
-  # Check if the 'adb' command exists in the system PATH.
-  if ! command -v adb > /dev/null; then
-    echo "adb command not found" >&2
-    return 1
-  fi
+  __fza_check_command adb || return 1
+  __fza_check_command fzf || return 1
 
   adb devices | tail -n +2 | awk 'NF {print $1}' | fzf --prompt="📱 Devices> " --height=40% --reverse
 }
 
 # Core function to list installed packages and pick one using fzf.
 __fza_pm_packages() {
-  # Check if the 'adb' command exists in the system PATH.
-  if ! command -v adb > /dev/null; then
-    echo "adb command not found" >&2
-    return 1
-  fi
+  __fza_check_command adb || return 1
+  __fza_check_command fzf || return 1
 
   # 'adb shell pm list packages' outputs lines like 'package:com.example.app\r'.
   # We use sed to remove the 'package:' prefix and the trailing carriage return (\r).
@@ -70,11 +71,8 @@ __fza_pm_packages() {
 
 # Core function to list files in /sdcard and pick one using fzf.
 __fza_adb_files() {
-  # Check if the 'adb' command exists in the system PATH.
-  if ! command -v adb > /dev/null; then
-    echo "adb command not found" >&2
-    return 1
-  fi
+  __fza_check_command adb || return 1
+  __fza_check_command fzf || return 1
 
   adb shell "find /sdcard/ -type f -not -path '*/.*' 2>/dev/null" | sed $'s/\r$//' | fzf --prompt="📁 Files> " --height=40% --reverse --preview='adb shell cat "{}"' --preview-window=right:50%
 }
