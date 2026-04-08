@@ -22,7 +22,7 @@ __fzf_android_is_zsh() {
 
 # Check if a required command exists in the system PATH.
 # Prints an error to stderr and returns 1 if not found.
-__fza_check_command() {
+__fzf_android_check_command() {
   local cmd="$1"
   if ! command -v "$cmd" > /dev/null; then
     echo "fzf-android: $cmd command not found" >&2
@@ -31,7 +31,7 @@ __fza_check_command() {
 }
 
 # Core function to display key bindings.
-__fza_help() {
+__fzf_android_help() {
   echo
   cat <<'EOF'
 fzf-android key bindings:
@@ -44,25 +44,25 @@ EOF
 }
 
 # Core function to list android virtual devices and pick one using fzf.
-__fza_avds() {
-  __fza_check_command emulator || return 1
-  __fza_check_command fzf || return 1
+__fzf_android_avds() {
+  __fzf_android_check_command emulator || return 1
+  __fzf_android_check_command fzf || return 1
 
   emulator -list-avds | fzf --prompt="💻 AVDs> " --height=40% --reverse
 }
 
 # Core function to list connected adb device serials and pick one using fzf.
-__fza_adb_device_serials() {
-  __fza_check_command adb || return 1
-  __fza_check_command fzf || return 1
+__fzf_android_adb_device_serials() {
+  __fzf_android_check_command adb || return 1
+  __fzf_android_check_command fzf || return 1
 
   adb devices | tail -n +2 | awk 'NF {print $1}' | fzf --prompt="📱 Devices> " --height=40% --reverse
 }
 
 # Core function to list installed packages and pick one using fzf.
-__fza_pm_packages() {
-  __fza_check_command adb || return 1
-  __fza_check_command fzf || return 1
+__fzf_android_pm_packages() {
+  __fzf_android_check_command adb || return 1
+  __fzf_android_check_command fzf || return 1
 
   # 'adb shell pm list packages' outputs lines like 'package:com.example.app\r'.
   # We use sed to remove the 'package:' prefix and the trailing carriage return (\r).
@@ -70,9 +70,9 @@ __fza_pm_packages() {
 }
 
 # Core function to list files in /sdcard and pick one using fzf.
-__fza_adb_files() {
-  __fza_check_command adb || return 1
-  __fza_check_command fzf || return 1
+__fzf_android_adb_files() {
+  __fzf_android_check_command adb || return 1
+  __fzf_android_check_command fzf || return 1
 
   adb shell "find /sdcard/ -type f -not -path '*/.*' 2>/dev/null" | sed $'s/\r$//' | fzf --prompt="📁 Files> " --height=40% --reverse --preview='adb shell cat "{}"' --preview-window=right:50%
 }
@@ -89,14 +89,14 @@ if __fzf_android_is_zsh; then
   }
 
   # ZLE (Zsh Line Editor) widgets.
-  fza-help-widget() {
-    __fza_help
+  fzf-android-help-widget() {
+    __fzf_android_help
     zle reset-prompt
   }
 
-  fza-avds-widget() {
+  fzf-android-avds-widget() {
     # Get the selected AVD and format it.
-    local result=$(__fza_avds | __fzf_android_join)
+    local result=$(__fzf_android_avds | __fzf_android_join)
     # Clear the fzf UI from the screen.
     zle reset-prompt
     if [[ -n "$result" ]]; then
@@ -105,9 +105,9 @@ if __fzf_android_is_zsh; then
     fi
   }
 
-  fza-adb-device-serials-widget() {
+  fzf-android-adb-device-serials-widget() {
     # Get the selected device serial and format it.
-    local result=$(__fza_adb_device_serials | __fzf_android_join)
+    local result=$(__fzf_android_adb_device_serials | __fzf_android_join)
     # Clear the fzf UI from the screen.
     zle reset-prompt
     if [[ -n "$result" ]]; then
@@ -116,9 +116,9 @@ if __fzf_android_is_zsh; then
     fi
   }
 
-  fza-pm-packages-widget() {
+  fzf-android-pm-packages-widget() {
     # Get the selected package name and format it.
-    local result=$(__fza_pm_packages | __fzf_android_join)
+    local result=$(__fzf_android_pm_packages | __fzf_android_join)
     # Clear the fzf UI from the screen.
     zle reset-prompt
     if [[ -n "$result" ]]; then
@@ -127,9 +127,9 @@ if __fzf_android_is_zsh; then
     fi
   }
 
-  fza-adb-files-widget() {
+  fzf-android-adb-files-widget() {
     # Get the selected file path and format it.
-    local result=$(__fza_adb_files | __fzf_android_join)
+    local result=$(__fzf_android_adb_files | __fzf_android_join)
     # Clear the fzf UI from the screen.
     zle reset-prompt
     if [[ -n "$result" ]]; then
@@ -140,18 +140,18 @@ if __fzf_android_is_zsh; then
   # End of ZLE widgets.
 
   # Register the functions as a ZLE widget.
-  zle -N fza-help-widget
-  zle -N fza-avds-widget
-  zle -N fza-adb-device-serials-widget
-  zle -N fza-pm-packages-widget
-  zle -N fza-adb-files-widget
+  zle -N fzf-android-help-widget
+  zle -N fzf-android-avds-widget
+  zle -N fzf-android-adb-device-serials-widget
+  zle -N fzf-android-pm-packages-widget
+  zle -N fzf-android-adb-files-widget
 
   # Bind keys to the widget.
-  bindkey '^a?' fza-help-widget # CTRL-A ?
-  bindkey '^a^v' fza-avds-widget # CTRL-A CTRL-V
-  bindkey '^a^e' fza-adb-device-serials-widget # CTRL-A CTRL-E
-  bindkey '^a^p' fza-pm-packages-widget # CTRL-A CTRL-P
-  bindkey '^a^f' fza-adb-files-widget # CTRL-A CTRL-F
+  bindkey '^a?' fzf-android-help-widget # CTRL-A ?
+  bindkey '^a^v' fzf-android-avds-widget # CTRL-A CTRL-V
+  bindkey '^a^e' fzf-android-adb-device-serials-widget # CTRL-A CTRL-E
+  bindkey '^a^p' fzf-android-pm-packages-widget # CTRL-A CTRL-P
+  bindkey '^a^f' fzf-android-adb-files-widget # CTRL-A CTRL-F
 
 else
   # Bash-specific implementation
@@ -165,36 +165,36 @@ else
   }
 
   # Helper functions for Bash key binding.
-  __fza_help_bash() {
-    __fza_help
+  __fzf_android_help_bash() {
+    __fzf_android_help
   }
 
-  __fza_avds_bash() {
-    local selected=$(__fza_avds | __fzf_android_join)
+  __fzf_android_avds_bash() {
+    local selected=$(__fzf_android_avds | __fzf_android_join)
     if [[ -n "$selected" ]]; then
       READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
       READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
     fi
   }
 
-  __fza_adb_device_serials_bash() {
-    local selected=$(__fza_adb_device_serials | __fzf_android_join)
+  __fzf_android_adb_device_serials_bash() {
+    local selected=$(__fzf_android_adb_device_serials | __fzf_android_join)
     if [[ -n "$selected" ]]; then
       READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
       READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
     fi
   }
 
-  __fza_pm_packages_bash() {
-    local selected=$(__fza_pm_packages | __fzf_android_join)
+  __fzf_android_pm_packages_bash() {
+    local selected=$(__fzf_android_pm_packages | __fzf_android_join)
     if [[ -n "$selected" ]]; then
       READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
       READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
     fi
   }
 
-  __fza_adb_files_bash() {
-    local selected=$(__fza_adb_files | __fzf_android_join)
+  __fzf_android_adb_files_bash() {
+    local selected=$(__fzf_android_adb_files | __fzf_android_join)
     if [[ -n "$selected" ]]; then
       READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
       READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
@@ -203,9 +203,9 @@ else
   # End of helper functions.
 
   # Bind keys to the bash functions.
-  bind -x '"\C-a?": __fza_help_bash'
-  bind -x '"\C-a\C-v": __fza_avds_bash'
-  bind -x '"\C-a\C-e": __fza_adb_device_serials_bash'
-  bind -x '"\C-a\C-p": __fza_pm_packages_bash'
-  bind -x '"\C-a\C-f": __fza_adb_files_bash'
+  bind -x '"\C-a?": __fzf_android_help_bash'
+  bind -x '"\C-a\C-v": __fzf_android_avds_bash'
+  bind -x '"\C-a\C-e": __fzf_android_adb_device_serials_bash'
+  bind -x '"\C-a\C-p": __fzf_android_pm_packages_bash'
+  bind -x '"\C-a\C-f": __fzf_android_adb_files_bash'
 fi

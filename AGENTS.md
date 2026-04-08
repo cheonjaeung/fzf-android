@@ -12,5 +12,5 @@
 
 - Write all code, comments, and documentation in English.
 - Add documentation comments to all functions, explaining the purpose of the function and the specific shell behavior being targeted.
-- Prefix internal utility functions with `__fza_` or `__fzf_android_` to avoid namespace collisions in the user's shell environment.
+- Prefix internal utility functions with `__fzf_android_` to avoid namespace collisions in the user's shell environment.
 - Maintain a consistent `fzf` UI experience by using standard flags: `--height=40% --reverse`.
